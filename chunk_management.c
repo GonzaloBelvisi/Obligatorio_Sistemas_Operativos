@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
-MemoryChunkHeader *first_chunk;
-uint16_t chunk_current_id;
+MemoryChunkHeader *first_chunk = NULL;
+uint16_t chunk_current_id = 0;
 
 void *create_new_chunk(uint16_t units_needed, int is_large_allocation, MemoryChunkHeader *next) {
     // Verificar que el número de unidades no sea excesivamente grande
@@ -25,18 +25,22 @@ void *create_new_chunk(uint16_t units_needed, int is_large_allocation, MemoryChu
         return NULL;
     }
 
+
+    // Inicializar el encabezado del chunk
     MemoryChunkHeader *header = (MemoryChunkHeader *)mem;
     header->id = chunk_current_id++;
     header->is_large_allocation = is_large_allocation;
     header->chunk_total_units = units_needed;
     header->next = next;
 
+
+    //Si es Large allocation
     if (is_large_allocation) {
         header->chunk_available_units = units_needed;
         header->bitmap = NULL;
         header->bitmap_size = 0;
         printf("Chunk grande creado: %u unidades.\n", units_needed);
-    } else {
+    } else { //si es normal
         header->chunk_available_units = UNITS_PER_CHUNK - STRUCT_CH_UNITS - BITMAP_UNITS;
         header->bitmap = (Bitmap)(mem + STRUCT_CH_UNITS * UNIT_SIZE);
         header->bitmap_size = BITMAP_SIZE;

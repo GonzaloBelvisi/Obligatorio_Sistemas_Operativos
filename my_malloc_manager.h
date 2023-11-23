@@ -12,8 +12,10 @@
 #define UNITS_PER_CHUNK (BITMAP_SIZE * 8)                                         // assuming 1 bit per unit
 #define STRUCT_CH_UNITS ((sizeof(MemoryChunkHeader) + UNIT_SIZE - 1) / UNIT_SIZE) // Cuantas unidades ocupa el chunk header
 #define BITMAP_UNITS ((BITMAP_SIZE + UNIT_SIZE - 1) / UNIT_SIZE)                  // Cuantas unidades ocupa el Bitmap
+
+//Definiciones por el profe
 #define IS_LARGE_ALLOCATION(units) (units >= (UNITS_PER_CHUNK - STRUCT_CH_UNITS - BITMAP_UNITS))
-#define MAX_UNITS_ALLOWED 10000
+#define MAX_UNITS_ALLOWED 10000 // Constantes que definen el tamaño del chunk
 
 typedef unsigned char *Bitmap; // Bitmap type definition
 
