@@ -12,6 +12,8 @@
 #define UNITS_PER_CHUNK (BITMAP_SIZE * 8)                                         // assuming 1 bit per unit
 #define STRUCT_CH_UNITS ((sizeof(MemoryChunkHeader) + UNIT_SIZE - 1) / UNIT_SIZE) // Cuantas unidades ocupa el chunk header
 #define BITMAP_UNITS ((BITMAP_SIZE + UNIT_SIZE - 1) / UNIT_SIZE)                  // Cuantas unidades ocupa el Bitmap
+#define IS_LARGE_ALLOCATION(units) (units >= (UNITS_PER_CHUNK - STRUCT_CH_UNITS - BITMAP_UNITS))
+#define MAX_UNITS_ALLOWED 10000
 
 typedef unsigned char *Bitmap; // Bitmap type definition
 
@@ -42,7 +44,7 @@ extern void clear_bits(Bitmap bitmap, uint16_t start_byte_index, uint16_t start_
 extern void set_or_clear_bits(int set, Bitmap bitmap, uint16_t start_byte_index, uint16_t start_bit_index, uint16_t qty);
 
 // Declaration for create_new_chunk
-extern void *create_new_chunk(void);
+extern void *create_new_chunk(uint16_t units_needed, int is_large_allocation, MemoryChunkHeader *next);
 
 // External variable declarations
 extern MemoryChunkHeader *first_chunk; // pointer to the first chunk of memory

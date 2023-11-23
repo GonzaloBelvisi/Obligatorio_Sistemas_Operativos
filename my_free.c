@@ -6,7 +6,6 @@ static MemoryChunkHeader *find_chunk(void *ptr)
     MemoryChunkHeader *chunk = (MemoryChunkHeader *)first_chunk;
     while (chunk != NULL)
     {
-        // Suponemos que el bitmap empieza inmediatamente después del MemoryChunkHeader
         if (ptr > (void *)chunk && ptr < (void *)chunk + chunk->chunk_total_units * UNIT_SIZE)
         {
             return chunk;
@@ -29,17 +28,18 @@ void my_free(void *ptr)
 
     // Obtener el MemoryChunkHeader correspondiente
     MemoryChunkHeader *chunk_header = find_chunk(ptr);
+    assert(chunk_header != NULL); // Si no se encuentra el chunk_header, hay un problema grave.
 
-    // Si no se encuentra el chunk_header, hay un problema grave.
-    assert(chunk_header != NULL);
+    // Para chunks grandes, simplemente incrementar las unidades disponibles
+    if (chunk_header->is_large_allocation) {
+        chunk_header->chunk_available_units += alloc_header->nunits;
+        return;
+    }
 
-    // Calcular el índice de inicio en el bitmap basado en el AllocationHeader
+    // Para chunks normales, actualizar el bitmap
     uint16_t start_byte_index = alloc_header->bit_index / 8;
     uint16_t start_bit_index = alloc_header->bit_index % 8;
 
-    // Limpiar los bits en el bitmap para marcar el espacio como libre
     clear_bits(chunk_header->bitmap, start_byte_index, start_bit_index, alloc_header->nunits);
-
-    // Actualizar el contador de unidades disponibles en el chunk
     chunk_header->chunk_available_units += alloc_header->nunits;
 }
