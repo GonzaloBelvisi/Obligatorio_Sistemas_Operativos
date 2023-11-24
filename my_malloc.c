@@ -10,7 +10,9 @@ void *my_malloc(size_t nbytes) {
 
     // Si es una asignación grande, manejarla primero
     if (IS_LARGE_ALLOCATION(units_needed)) {
-        MemoryChunkHeader *large_chunk = create_new_chunk(units_needed, 1, NULL);
+        size_t header_units = (sizeof(MemoryChunkHeader) + UNIT_SIZE - 1) / UNIT_SIZE;
+        size_t total_units = header_units + units_needed;
+        MemoryChunkHeader *large_chunk = create_new_chunk(total_units, 1, NULL);
         if (!large_chunk) {
             perror("Error al crear un chunk grande en my_malloc");
             return NULL;

@@ -3,18 +3,11 @@
 #include <sys/mman.h>
 #include <stdio.h>
 
-static MemoryChunkHeader *find_chunk_and_prev(void *ptr, MemoryChunkHeader **prev_chunk) {
-    MemoryChunkHeader *chunk = first_chunk;
-    *prev_chunk = NULL;
-    while (chunk != NULL) {
-        if (ptr > (void *)chunk && ptr < (void *)chunk + chunk->chunk_total_units * UNIT_SIZE) {
-            return chunk;
-        }
-        *prev_chunk = chunk;
-        chunk = chunk->next;
-    }
-    return NULL;
+static MemoryChunkHeader *find_chunk(void *ptr) {
+    AllocationHeader *alloc_header = (AllocationHeader *)ptr - 1;
+    return (MemoryChunkHeader *)((char *)alloc_header - alloc_header->bit_index * UNIT_SIZE - sizeof(MemoryChunkHeader));
 }
+
 
 void my_free(void *ptr) {
     if (!ptr) {
@@ -24,7 +17,7 @@ void my_free(void *ptr) {
     AllocationHeader *alloc_header = (AllocationHeader *)ptr - 1;
 
     MemoryChunkHeader *prev_chunk = NULL;
-    MemoryChunkHeader *chunk_header = find_chunk_and_prev(ptr, &prev_chunk);
+    MemoryChunkHeader *chunk_header = find_chunk(ptr);
     assert(chunk_header != NULL);
 
     if (chunk_header->is_large_allocation) {
