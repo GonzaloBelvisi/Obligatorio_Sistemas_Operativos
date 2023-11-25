@@ -6,6 +6,15 @@ void *my_malloc(size_t nbytes) {
         return NULL;
     }
 
+    // Si first_chunk es NULL, crea un chunk standard vacío
+    if (first_chunk == NULL) {
+        first_chunk = create_new_chunk(UNITS_PER_CHUNK, 0, NULL);
+        if (!first_chunk) {
+            perror("Error al crear el primer chunk standard en my_malloc");
+            return NULL;
+        }
+    }
+
     size_t units_needed = (nbytes + sizeof(AllocationHeader) + UNIT_SIZE - 1) / UNIT_SIZE;
 
     // Si es una asignación grande, manejarla primero
